@@ -77,3 +77,8 @@ def analyze_code(code):
 
     # Default response
     return f"Extracted Text:\n\n{code[:500]}"
+
+try:
+    text = pytesseract.image_to_string(image)
+except:
+    text = "OCR not supported in deployed environment"
