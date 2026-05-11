@@ -5,6 +5,10 @@ import base64
 from PIL import Image
 import io
 import pytesseract
+from openai import OpenAI
+import os
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
@@ -49,9 +53,12 @@ async def analyze(data: ImageData):
         print("📝 Extracted Text:", extracted_text[:100])
 
         # 3. Analyze code
-        result = analyze_code(extracted_text)
+        ai_result = analyze_code_with_ai(extracted_text)
 
-        return {"result": result}
+        return {
+        "text": extracted_text,
+        "analysis": ai_result
+        }
 
     except Exception as e:
         print("❌ ERROR:", str(e))
@@ -78,7 +85,15 @@ def analyze_code(code):
     # Default response
     return f"Extracted Text:\n\n{code[:500]}"
 
-try:
-    text = pytesseract.image_to_string(image)
-except:
-    text = "OCR not supported in deployed environment"
+# 🔽 ADD THIS FUNCTION HERE
+def analyze_code_with_ai(code_text):
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a coding assistant that finds errors and explains them."},
+            {"role": "user", "content": f"Analyze this code:\n{code_text}"}
+        ]
+    )
+    return response.choices[0].message.content
+def analyze_code_with_ai(code_text):
+    ...
