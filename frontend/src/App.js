@@ -32,7 +32,7 @@ function App() {
       });
 
       const data = await res.json();
-      setResult(data.result);
+      setResult(data.analysis);
       speak(data.result);
 
     } catch (err) {
